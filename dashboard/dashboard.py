@@ -71,9 +71,9 @@ HARD_LABELS = {"THRESHOLD", "VO2MAX", "ANAEROBIC_CAPACITY", "SPRINT"}
 WORKOUT_WORDS = re.compile(
     r"interval|tempo|threshold|\breps?\b|fartlek|hill|progression|workout|"
     r"session|track|speed|\d+\s*[x×]\s*\d+|cruise|ladder|pyramid|yasso|\bLT\b",
-    re.I,
+    re.IGNORECASE,
 )
-RACE_WORDS = re.compile(r"\brace\b|parkrun|half marathon|\b10k race\b", re.I)
+RACE_WORDS = re.compile(r"\brace\b|parkrun|half marathon|\b10k race\b", re.IGNORECASE)
 
 
 def log(msg: str) -> None:
@@ -193,7 +193,7 @@ def riegel(t: float, d1: float, d2: float) -> float:
 def fmt_hms(s: float | None) -> str | None:
     if s is None:
         return None
-    s = int(round(s))
+    s = round(s)
     h, rem = divmod(s, 3600)
     m, sec = divmod(rem, 60)
     return f"{h}:{m:02d}:{sec:02d}" if h else f"{m}:{sec:02d}"
@@ -535,7 +535,7 @@ def build_data(raw: dict, today: date, status: dict, demo: bool) -> dict:
         "Profile (LTHR)": status.get("user_profile"),
     }
     return {
-        "generated": datetime.now().strftime("%a %d %b %Y, %H:%M"),
+        "generated": datetime.now().strftime("%a %d %b %Y, %H:%M"),  # noqa: DTZ005 - local time wanted
         "today": today.isoformat(),
         "demo": demo,
         "races": RACES,
@@ -1135,7 +1135,7 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=OUT_FILE, help=f"output file (default {OUT_FILE})")
     args = ap.parse_args()
 
-    today = date.today()
+    today = date.today()  # noqa: DTZ011 - your local date
     if args.demo:
         api, use_cache = DemoGarmin(today), False
     else:
